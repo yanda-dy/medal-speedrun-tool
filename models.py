@@ -115,21 +115,9 @@ class Score(BaseModel):
     submit_time: datetime
 
     def __str__(self):
-        grades = {
-            0: "XH",
-            1: "SH",
-            2: "X",
-            3: "S",
-            4: "A",
-            5: "B",
-            6: "C",
-            7: "D"
-        }
-        if not self.passed: grade_str = "F"
-        else: grade_str = grades[self.statistics.grade]
         return f"{self.beatmap.map_name} [{self.beatmap.diff_name}] ({self.beatmap.mstars}*)\n" \
                f"{self.statistics.score} ({self.statistics.accuracy:.2f}%) {self.submit_time.strftime('%Y-%m-%d %H:%M:%S')}\n" \
-               f"{grade_str} {self.statistics.max_combo}/{self.beatmap.max_combo}x {self.statistics.count_300}/{self.statistics.count_100}/{self.statistics.count_50}/{self.statistics.count_miss}"
+               f"{self.statistics.grade.name} {self.statistics.max_combo}/{self.beatmap.max_combo}x {self.statistics.count_300}/{self.statistics.count_100}/{self.statistics.count_50}/{self.statistics.count_miss}"
 
 
 class Session(BaseModel):

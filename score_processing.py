@@ -45,9 +45,10 @@ def add_play(play_history, data, passed, medal_stopwatch):
     settings = ScoreSettings(mode=modes[data["gameMode"]], mods_int=data["modsEnum"])
 
     accuracy = get_acc(data)
+    grade = Grade(data["grade"]) if passed else Grade.F
     statistics = ScoreStatistics(score=data["score"], max_combo=data["currentMaxCombo"], count_300=data["c300"], 
                                  count_100=data["c100"], count_50=data["c50"], count_geki=data["geki"], 
-                                 count_katu=data["katsu"], count_miss=data["miss"], grade=Grade(data["grade"]), 
+                                 count_katu=data["katsu"], count_miss=data["miss"], grade=grade, 
                                  accuracy=accuracy, full_combo=(data["currentMaxCombo"]==data["maxCombo"]))
     
     hit_length = data["totaltime"]
@@ -109,10 +110,7 @@ def main(medal_stopwatch: Stopwatch):
             status_score = (data["status"], prev_data["score"])
             prev_data = data.copy()
             print(play_history[-1])
-
-        # if data["comboLeft"] > prev_combo_left:
-        #     print(data["comboLeft"], prev_combo_left, status_score, (data["status"], prev_data["score"]), prev_data["score"])    
-
+        
         prev_combo_left = data["comboLeft"]
         if data["score"] != 0:
             prev_data = data.copy()
