@@ -15,21 +15,46 @@ modes = {
 }
 
 
+def get_acc(data):
+    match modes[data["gameMode"]]:
+        case 2:
+            total_hits = data["c300"] + data["c100"] + data["c50"] + data["miss"] + data["katsu"]
+        case 3:
+            total_hits = data["c300"] + data["c100"] + data["c50"] + data["miss"] + data["geki"] + data["katsu"]
+        case _:
+            total_hits = data["c300"] + data["c100"] + data["c50"] + data["miss"]
+
+    if total_hits <= 0:
+        return 100.00
+
+    match modes[data["gameMode"]]:
+        case 1:
+            accuracy = round((300 * data["c300"] + 150 * data["c100"])/(300 * total_hits) * 100, 2)
+        case 2:
+            accuracy = round((data["c300"] + data["c100"] + data["c50"])/(total_hits) * 100, 2)
+        case 3:
+            accuracy = round((300 * data["c300"] + 300 * data["geki"] + 200 * data["katsu"] + 100 * data["c100"] + 50 * data["c50"])/(300 * total_hits) * 100, 2)
+        case _:
+            accuracy = round((300 * data["c300"] + 100 * data["c100"] + 50 * data["c50"])/(300 * total_hits) * 100, 2)
+    
+    return accuracy
+
+
 def add_play(play_history, data, passed, medal_stopwatch):
     global modes
     settings = ScoreSettings(mode=modes[data["gameMode"]], mods_int=data["modsEnum"])
 
-    accuracy = round((6*data["c300"] + 2*data["c100"] + data["c50"])/(6*(data["c300"] + data["c100"] + data["c50"] + data["miss"]))*100, 2)
+    accuracy = get_acc(data)
     statistics = ScoreStatistics(score=data["score"], max_combo=data["currentMaxCombo"], count_300=data["c300"], 
                                  count_100=data["c100"], count_50=data["c50"], count_geki=data["geki"], 
-                                 count_katu=data["katsu"], count_miss=data["miss"], grade=data["grade"], 
+                                 count_katu=data["katsu"], count_miss=data["miss"], grade=Grade(data["grade"]), 
                                  accuracy=accuracy, full_combo=(data["currentMaxCombo"]==data["maxCombo"]))
     
     hit_length = data["totaltime"]
     for break_time in data["mapBreaks"]:
         hit_length -= (break_time["endTime"] - break_time["startTime"])
     hit_length = int(round(hit_length/1000))
-    beatmap = Beatmap(id=data["mapid"], beatmapset_id=data["mapsetid"], status=data["rankedStatus"], map_name=data["titleRoman"], 
+    beatmap = Beatmap(id=data["mapid"], beatmapset_id=data["mapsetid"], status=RankStatus(data["rankedStatus"]), map_name=data["titleRoman"], 
                       diff_name=data["diffName"], artist=data["artistRoman"], creator=data["creator"], hit_length=hit_length, 
                       bpm=data["mainBpm"], circles=data["circles"], sliders=data["sliders"], spinners=data["spinners"], 
                       max_combo=data["maxCombo"], cs=data["cs"], ar=data["ar"], od=data["od"], hp=data["hp"], mcs=data["mCS"], 

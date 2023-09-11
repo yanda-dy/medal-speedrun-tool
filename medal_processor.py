@@ -44,7 +44,7 @@ def award_medals(session: Session, play_history: list[Score], medal_stopwatch: S
     # unranked_mods = ["RX", "AT", "AP", "CM", "TP", "CP", "1K", "2K", "3K"]
     if recent_play.settings.mods_int & 515909760 != 0: return
     # HR is unranked in mania
-    if (recent_play.settings.mode == "mania") and (recent_play.settings.mods_int & 16 != 0): return
+    if (mode_name[recent_play.settings.mode] == "mania") and (recent_play.settings.mods_int & 16 != 0): return
     
     for medal in medal_data:
         if medal.id in session.medals: continue

@@ -1,6 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
+from enum import Enum
 
 
 class Medal(BaseModel):
@@ -22,6 +23,28 @@ class ScoreSettings(BaseModel):
     mods_int: int
 
 
+class Grade(Enum):
+    XH = 0
+    SH = 1
+    X = 2
+    S = 3
+    A = 4
+    B = 5
+    C = 6
+    D = 7
+    F = 8
+
+    def __lt__(self, other):
+        if isinstance(other, int):
+            return self.value < other
+        return NotImplemented
+
+    def __eq__(self, other):
+        if isinstance(other, int):
+            return self.value == other
+        return NotImplemented
+
+
 class ScoreStatistics(BaseModel):
     score: int
     max_combo: int
@@ -31,34 +54,36 @@ class ScoreStatistics(BaseModel):
     count_geki: int
     count_katu: int
     count_miss: int
-    """ grade codes
-    0: XH
-    1: SH
-    2: X
-    3: S
-    4: A
-    5: B
-    6: C
-    7: D
-    """
-    grade: int
+    grade: Grade
     # Rounded to two decimal places
     accuracy: float
     full_combo: bool
 
 
+class RankStatus(Enum):
+    UNSUBMITTED = 1
+    # Unranked = Graveyard / Pending / WIP
+    UNRANKED = 2
+    RANKED = 4
+    APPROVED = 5
+    QUALIFIED = 6
+    LOVED = 7
+
+    def __lt__(self, other):
+        if isinstance(other, int):
+            return self.value < other
+        return NotImplemented
+
+    def __eq__(self, other):
+        if isinstance(other, int):
+            return self.value == other
+        return NotImplemented
+
+
 class Beatmap(BaseModel):
     id: int
     beatmapset_id: int
-    """ status codes
-    1: Unsubmitted
-    2: Unranked (Graveyard / Pending / WIP)
-    4: Ranked
-    5: Approved
-    6: Qualified
-    7: Loved
-    """
-    status: int
+    status: RankStatus
     map_name: str
     diff_name: str
     artist: str
