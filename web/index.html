@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medal Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="eel.js"></script>
+    <script src="scripts.js"></script>
+    <script type="text/javascript">
+        // document.onkeydown = function (e) { return false; }
+        // document.onkeyup = function (e) { return false; }
+        // document.addEventListener('contextmenu', event => event.preventDefault());
+    </script>
+</head>
+<body>
+    <div class="warning-modal">
+        <div class="warning-icon">
+            <img src="assets/images/warning-icon.png">
+        </div>
+        <div class="warning-text">
+            Please make sure <a href="https://github.com/Piotrekol/StreamCompanion" target="_blank">StreamCompanion</a> is downloaded and running.
+        </div>
+    </div>
+    <div class="global-blur"></div>
+    <div class="activity-title">
+        Activity Log
+    </div>
+    <div class="recent-activity">
+        
+    </div>
+    <div class="stopwatch">
+        <div class="stopwatch-button" onclick="handleButtonClick()">
+            Start
+        </div>
+        <div class="stopwatch-time">
+            00:00:00.000
+        </div>
+    </div>
+    <script type="text/javascript">
+        let stopwatchState = "start";
+        let interval = null;
+
+        function handleButtonClick() {
+            if (stopwatchState === "start") {
+                eel.start_stopwatch();
+                document.querySelector('.stopwatch-button').innerText = "End Run";
+                document.querySelector('.stopwatch-button').classList.add('stopwatch-button--end-run');
+                stopwatchState = "endRun";
+                interval = setInterval(updateTime, 10);  // update every 10ms
+            } else if (stopwatchState === "endRun") {
+                clearInterval(interval);
+                eel.stop_stopwatch();
+                document.querySelector('.stopwatch-button').innerText = "Reset";
+                document.querySelector('.stopwatch-button').classList.remove('stopwatch-button--end-run');
+                document.querySelector('.stopwatch-button').classList.add('stopwatch-button--reset');
+                stopwatchState = "reset";
+            } else if (stopwatchState === "reset") {
+                eel.reset_stopwatch();
+                document.querySelector('.stopwatch-button').innerText = "Start";
+                document.querySelector('.stopwatch-button').classList.remove('stopwatch-button--reset');
+                document.querySelector('.stopwatch-time').innerText = "00:00:00.000";
+                document.querySelector('.recent-activity').innerHTML = "";
+                stopwatchState = "start";
+            }
+        }
+
+        function updateTime() {
+            eel.get_elapsed_time()(function(time) {
+                document.querySelector('.stopwatch-time').innerText = time;
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        async function checkStreamCompanion() {
+            try {
+                const response = await fetch('http://localhost:20727/json', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    document.querySelector('.warning-modal').style.display = 'none';
+                    document.querySelector('.global-blur').style.display = 'none';
+                    clearInterval(checkInterval);
+                }
+            } catch (error) {
+                console.log("StreamCompanion not available yet. Retrying...");
+            }
+        }
+        const checkInterval = setInterval(checkStreamCompanion, 1000);
+        
+        window.addEventListener("DOMContentLoaded", function() {
+            window.addEventListener("resize", function(){
+                window.resizeTo(950, 680);
+            });
+        });
+        window.addEventListener("resize", function(){
+            window.resizeTo(950, 680);
+        });
+    </script>
+</body>
+</html>

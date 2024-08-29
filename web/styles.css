@@ -1,0 +1,541 @@
+@font-face {
+  font-family: "Comfortaa";
+  src: url("assets/fonts/Comfortaa-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  unicode-range: U+0-2F, U+3A-10FFFF; /* All characters except digits */
+}
+@font-face {
+  font-family: "Varela Round";
+  src: url("assets/fonts/VarelaRound-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-synthesis: weight;
+}
+
+:root {
+  --base-hue: 333;
+  --hsl-p: var(--base-hue), 100%, 50%;
+  --hsl-h1: var(--base-hue), 100%, 70%;
+  --hsl-h2: var(--base-hue), 50%, 45%;
+  --hsl-c1: var(--base-hue), 40%, 100%;
+  --hsl-c2: var(--base-hue), 40%, 90%;
+  --hsl-l1: var(--base-hue), 40%, 80%;
+  --hsl-l2: var(--base-hue), 40%, 75%;
+  --hsl-l3: var(--base-hue), 40%, 70%;
+  --hsl-l4: var(--base-hue), 40%, 50%;
+  --hsl-d1: var(--base-hue), 20%, 35%;
+  --hsl-d2: var(--base-hue), 20%, 30%;
+  --hsl-d3: var(--base-hue), 20%, 25%;
+  --hsl-d4: var(--base-hue), 20%, 20%;
+  --hsl-d5: var(--base-hue), 20%, 15%;
+  --hsl-d6: var(--base-hue), 20%, 10%;
+  --hsl-f1: var(--base-hue), 10%, 60%;
+  --hsl-b1: var(--base-hue), 10%, 40%;
+  --hsl-b2: var(--base-hue), 10%, 30%;
+  --hsl-b3: var(--base-hue), 10%, 25%;
+  --hsl-b4: var(--base-hue), 10%, 20%;
+  --hsl-b5: var(--base-hue), 10%, 15%;
+  --hsl-b6: var(--base-hue), 10%, 10%;
+}
+
+body {
+  background-color: hsl(var(--hsl-b5));
+  font-family: "Comfortaa", "Varela Round", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  --text-color: #fff;
+  --diff-color: #ea0;
+  --accuracy-color: #fc2;
+}
+
+a {
+  text-decoration: none;
+  white-space: nowrap;
+  color: white;
+  position: relative;
+}
+a::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 66%;
+  left: -0.1em;
+  right: -0.1em;
+  bottom: 0;
+  transition: top 200ms cubic-bezier(0, 0.8, 0.13, 1);
+  background-color: rgba(145, 222, 191, 0.7);
+}
+a:hover::after {
+  top: -10%;
+}
+
+.global-blur {
+  backdrop-filter: blur(5px);
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+}
+.warning-modal {
+  position: fixed;
+  width: 400px;
+  padding: 20px 20px 30px 20px;
+  border-radius: 20px;
+  background-color: hsl(var(--hsl-b1));
+  border: 2px solid hsl(var(--hsl-f1));
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.warning-icon img {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 5px;
+}
+.warning-text {
+  font-size: 18px;
+  color: white;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.activity-title {
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  transform: translateX(-315px);
+  margin: 20px 0 7px 0;
+}
+.activity-title::after {
+  content: "";
+  display: block;
+  width: 50px;
+  height: 2.5px;
+  border-radius: 10px;
+  background-color: hsl(var(--hsl-l4));
+  margin-top: 2px;
+}
+
+.recent-activity {
+  max-width: 800px;
+  min-width: 500px;
+  width: 100%;
+  height: 500px;
+  overflow-y: auto;
+  padding-right: 7px;
+  padding-left: 60px;
+}
+/* Customized scrollbar */
+.recent-activity::-webkit-scrollbar {
+  width: 7px;
+}
+.recent-activity::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0);
+  border-radius: 10px;
+}
+.recent-activity::-webkit-scrollbar-thumb {
+  background: hsl(var(--hsl-d2));
+  border-radius: 10px;
+}
+.recent-activity::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--hsl-d1));
+}
+
+/* Recent Play */
+.recent-play {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  margin: 7px 0;
+  background-color: hsl(var(--hsl-b2));
+  color: var(--text-color);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+.recent-play:active,
+.recent-play:hover {
+  background-color: hsl(var(--hsl-b1));
+  transform: perspective(800px) rotateX(5deg);
+}
+
+.grade {
+  flex: 0 0 50px;
+  width: 50px;
+  height: 25px;
+  margin-left: 5px;
+  margin-right: 15px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.score-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.set-info {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+.song-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-right: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.artist {
+  font-size: 12px;
+  color: var(--text-color);
+}
+
+.statistics {
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.score-footer {
+  display: flex;
+  font-size: 12px;
+}
+
+.gamemode {
+  width: 12px;
+  height: 12px;
+  filter: brightness(0) invert(73%) sepia(58%) saturate(3171%) hue-rotate(5deg) brightness(99%) contrast(101%);
+  background-size: contain;
+  background-repeat: no-repeat;
+  padding-right: 5px;
+}
+
+.diff-name {
+  color: var(--diff-color);
+  font-weight: bold;
+}
+
+.timestamp {
+  position: relative;
+  padding-left: 20px;
+  color: hsl(var(--hsl-f1));
+}
+.timestamp:hover .tooltip {
+  visibility: visible;
+}
+.tooltip-date {
+  font-weight: bold;
+}
+.tooltip-time {
+  color: hsl(var(--hsl-l1));
+}
+
+.mods {
+  display: flex;
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+.mod {
+  height: 25px;
+  width: calc(25px * 45 / 32);
+  background-size: contain;
+  background-position: 50%;
+  background-repeat: no-repeat;
+  display: flex;
+  position: relative;
+}
+
+.mod:hover .tooltip {
+  visibility: visible;
+}
+
+.accuracy {
+  text-align: right;
+  width: 60px;
+  padding-right: 10px;
+  font-size: 14px;
+  font-family: 'Varela Round', sans-serif;
+  font-weight: bold;
+  color: var(--accuracy-color);
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  width: max-content;
+  font-size: 12px;
+  font-family: "Varela Round", sans-serif;
+  background: black;
+  color: #ffffff;
+  text-align: center;
+  padding: 7px 15px;
+  border-radius: 5px;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  pointer-events: none;
+  visibility: hidden;
+}
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+/* Medal Unlock */
+
+.medal-unlock {
+  position: relative;
+  min-width: 500px;
+  width: 100%;
+  height: 82px;
+  margin: 7px 0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+.medal-unlock:active,
+.medal-unlock:hover {
+  background-color: hsl(var(--hsl-b2));
+  transform: perspective(800px) rotateX(5deg);
+}
+.medal-count {
+  width: 50px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) translateX(-60px);
+  text-align: right;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+}
+.medal-unlock-content {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  position: relative;
+  align-items: center;
+  display: flex;
+}
+.medal-background {
+  position: absolute;
+  opacity: 0.5;
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+  height: 100%;
+  transform: scale(1.4);
+  filter: blur(25px);
+  z-index: -1;
+}
+.medal-icon img {
+  height: 60px;
+  padding: 4px 15px 0 22px;
+}
+.medal-info {
+  flex-grow: 1;
+  color: white;
+}
+.medal-name {
+  font-size: 18px;
+  font-weight: bold;
+  padding-bottom: 2px;
+}
+.medal-description {
+  font-size: 14px;
+  font-weight: 100;
+}
+.medal-timestamp {
+  width: 120px;
+  text-align: right;
+  padding-right: 30px;
+  font-size: 14px;
+  font-family: 'Varela Round', sans-serif;
+  font-weight: bold;
+  color: var(--accuracy-color);
+}
+
+/* Stopwatch */
+.stopwatch {
+  margin-top: 20px;
+  display: flex;
+}
+
+.stopwatch-button {
+  font-size: 14px;
+  display: inline-block;
+  padding: 12px 0;
+  width: 200px;
+  text-align: center;
+  background-color: #91b240;
+  color: white;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 50px;
+  transition: all 0.3s ease;
+}
+.stopwatch-button--end-run {
+  background-color: #b24040;
+}
+.stopwatch-button--reset {
+  background-color: #5a5a5a;
+}
+
+.stopwatch-time {
+  color: white;
+  font-size: 1.5em;
+  font-weight: bold;
+  align-self: center;
+}
+
+/* Gamemode Icons */
+.gamemode--osu {
+  background-image: url(assets/images/gamemodes/osu.svg);
+}
+.gamemode--taiko {
+  background-image: url(assets/images/gamemodes/taiko.svg);
+}
+.gamemode--fruits {
+  background-image: url(assets/images/gamemodes/ctb.svg);
+}
+.gamemode--mania {
+  background-image: url(assets/images/gamemodes/mania.svg);
+}
+
+/* Grade Icons */
+.grade--A {
+  background-image: url(assets/images/grades/A.svg);
+}
+.grade--B {
+  background-image: url(assets/images/grades/B.svg);
+}
+.grade--C {
+  background-image: url(assets/images/grades/C.svg);
+}
+.grade--D {
+  background-image: url(assets/images/grades/D.svg);
+}
+.grade--F {
+  background-image: url(assets/images/grades/F.svg);
+}
+.grade--S {
+  background-image: url(assets/images/grades/S.svg);
+}
+.grade--SH {
+  background-image: url(assets/images/grades/SH.svg);
+}
+.grade--X {
+  background-image: url(assets/images/grades/X.svg);
+}
+.grade--XH {
+  background-image: url(assets/images/grades/XH.svg);
+}
+
+/* Mod Icons */
+.mod--NF {
+  background-image: url(assets/images/mods/NF.png);
+}
+.mod--EZ {
+  background-image: url(assets/images/mods/EZ.png);
+}
+.mod--TD {
+  background-image: url(assets/images/mods/TD.png);
+}
+.mod--HD {
+  background-image: url(assets/images/mods/HD.png);
+}
+.mod--HR {
+  background-image: url(assets/images/mods/HR.png);
+}
+.mod--SD {
+  background-image: url(assets/images/mods/SD.png);
+}
+.mod--DT {
+  background-image: url(assets/images/mods/DT.png);
+}
+.mod--RX {
+  background-image: url(assets/images/mods/RX.png);
+}
+.mod--HT {
+  background-image: url(assets/images/mods/HT.png);
+}
+.mod--NC {
+  background-image: url(assets/images/mods/NC.png);
+}
+.mod--FL {
+  background-image: url(assets/images/mods/FL.png);
+}
+.mod--AT {
+  background-image: url(assets/images/mods/AT.png);
+}
+.mod--SO {
+  background-image: url(assets/images/mods/SO.png);
+}
+.mod--AP {
+  background-image: url(assets/images/mods/AP.png);
+}
+.mod--PF {
+  background-image: url(assets/images/mods/PF.png);
+}
+.mod--4K {
+  background-image: url(assets/images/mods/4K.png);
+}
+.mod--5K {
+  background-image: url(assets/images/mods/5K.png);
+}
+.mod--6K {
+  background-image: url(assets/images/mods/6K.png);
+}
+.mod--7K {
+  background-image: url(assets/images/mods/7K.png);
+}
+.mod--8K {
+  background-image: url(assets/images/mods/8K.png);
+}
+.mod--FI {
+  background-image: url(assets/images/mods/FI.png);
+}
+.mod--RD {
+  background-image: url(assets/images/mods/RD.png);
+}
+.mod--CN {
+  background-image: url(assets/images/mods/CN.png);
+}
+.mod--TP {
+  background-image: url(assets/images/mods/TP.png);
+}
+.mod--9K {
+  background-image: url(assets/images/mods/9K.png);
+}
+.mod--CO {
+  background-image: url(assets/images/mods/CO.png);
+}
+.mod--1K {
+  background-image: url(assets/images/mods/1K.png);
+}
+.mod--3K {
+  background-image: url(assets/images/mods/3K.png);
+}
+.mod--2K {
+  background-image: url(assets/images/mods/2K.png);
+}
+.mod--V2 {
+  background-image: url(assets/images/mods/V2.png);
+}
+.mod--MR {
+  background-image: url(assets/images/mods/MR.png);
+}
