@@ -732,6 +732,3 @@ def award_medals(play_history: list, session_statistics: dict, awarded_medals: s
             to_award.append((medal_id, medal.name, medal.description))
 
     return to_award
-
-if __name__ == "__main__":
-    award_medals([])
