@@ -1,0 +1,2 @@
+Eel==0.17.0
+websockets==13.0

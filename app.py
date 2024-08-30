@@ -46,7 +46,7 @@ async def connect_and_monitor():
                         data = await websocket.recv()
                         elapsed_time = time.time() - start_time
                         current_time = str(datetime.now())
-                        print(f"Received data: {data}")
+                        # print(f"Received data: {data}")
                         parsed_data = json.loads(data)
                         game_state.update(current_time, elapsed_time, **parsed_data)
                     except json.JSONDecodeError as e:
