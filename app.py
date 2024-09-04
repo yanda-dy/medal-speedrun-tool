@@ -1,3 +1,10 @@
+# fix for bottle.py
+import sys
+if hasattr(sys, "_MEIPASS"): # if the script is started from an executable file
+    with open("logs.txt", "a") as f_logs:
+        sys.stdout = f_logs
+        sys.stderr = f_logs
+
 import shutil
 import os
 import eel
@@ -10,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from game_state import GameState
 
+log_file = open('output.log', 'a')
 eel.init('web')
 
 # Global variables
@@ -36,26 +44,26 @@ async def connect_and_monitor():
     while True:
         try:
             async with websockets.connect(WS_URI) as websocket:
-                print(f"Connected to {WS_URI}")
+                print(f"Connected to {WS_URI}", file=log_file, flush=True)
                 
                 await websocket.send(json.dumps(TOKENS_TO_MONITOR))
-                print(f"Sent tokens to monitor: {TOKENS_TO_MONITOR}")
+                print(f"Sent tokens to monitor: {TOKENS_TO_MONITOR}", file=log_file, flush=True)
                 
                 while True:
                     try:
                         data = await websocket.recv()
                         elapsed_time = time.time() - start_time
                         current_time = str(datetime.now())
-                        # print(f"Received data: {data}")
+                        print(f"Received data: {data}", file=log_file, flush=True)
                         parsed_data = json.loads(data)
                         game_state.update(current_time, elapsed_time, **parsed_data)
                     except json.JSONDecodeError as e:
-                        print(f"Error decoding JSON: {e}")
+                        print(f"Error decoding JSON: {e}", file=log_file, flush=True)
                     except websockets.exceptions.ConnectionClosed as e:
-                        print(f"Connection closed: {e}")
+                        print(f"Connection closed: {e}", file=log_file, flush=True)
                         break
         except (websockets.exceptions.InvalidURI, websockets.exceptions.InvalidHandshake, OSError) as e:
-            print(f"Failed to connect to {WS_URI}: {e}. Retrying in 5 seconds...")
+            print(f"Failed to connect to {WS_URI}: {e}. Retrying in 5 seconds...", file=log_file, flush=True)
             await asyncio.sleep(5)
 
 def run_asyncio_loop(loop):
@@ -69,8 +77,7 @@ def start_stopwatch():
         start_time = time.time()
         running = True
         game_state = GameState()
-        
-        # Start event polling
+
         if polling_task is None or polling_task.done():
             event_loop = asyncio.new_event_loop()
             executor = ThreadPoolExecutor(max_workers=1)
@@ -88,12 +95,17 @@ def stop_stopwatch():
         source_file = "web/activity_history.json"
         destination_file = f"logs/log_{timestamp}.json"
         shutil.copyfile(source_file, destination_file)
-        
+
         # Stop event polling
         if polling_task and not polling_task.done():
             polling_task.cancel()
+        
         if event_loop:
             event_loop.call_soon_threadsafe(event_loop.stop)
+            
+            # Ensure the event loop thread is properly shutdown
+            if hasattr(event_loop, '_thread') and event_loop._thread.is_alive():
+                event_loop._thread.join()
 
 @eel.expose
 def reset_stopwatch():
@@ -127,12 +139,10 @@ def cleanup():
         print("Event loop stopped.")
 
 if __name__ == '__main__':
+    print(f"Main application started at {datetime.now()}", file=log_file, flush=True)
     window_size = {
         'size': (950, 680),
         'position': (100, 100),
         'resizable': False
     }
-    try:
-        eel.start('index.html', mode='chrome', **window_size, block=True)
-    except (SystemExit, KeyboardInterrupt):
-        cleanup()
+    eel.start('index.html', mode='chrome', **window_size, block=True)

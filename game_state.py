@@ -4,6 +4,7 @@ import traceback
 from dataclasses import dataclass, asdict, field
 from medal_processor import award_medals
 
+log_file = open('output.log', 'a')
 CURRENT_SESSION_FILE = 'web/activity_history.json'
 
 gamemode = {
@@ -86,7 +87,7 @@ class GameState:
 
         # Score decreased from above 10k to 0
         if 'score' in kwargs:
-            if self.prev_status == 2 and self.score >= 10_000 and kwargs['score'] == 0:
+            if (self.status == 2 or self.prev_status == 2) and self.score >= 10_000 and kwargs['score'] == 0:
                 setattr(self, "grade", 9)
                 self.submit_score(passed=False)
 
@@ -114,7 +115,7 @@ class GameState:
 
     def submit_score(self, passed: bool):
         self.id += 1
-        print(f"Score {self.id} submitted")
+        print(f"Score {self.id} submitted", file=log_file, flush=True)
 
         self.session["play_count"][self.gameMode] += 1
         self.session["total_hits"][self.gameMode] += self.c300 + self.c100
@@ -141,8 +142,8 @@ class GameState:
             try:
                 to_award = award_medals(play_history.copy(), self.session, self.medals)
             except Exception as e:
-                print(e)
-                traceback.print_exc()
+                print(e, file=log_file, flush=True)
+                traceback.print_exc(file=log_file)
             for medal in to_award:
                 self.id += 1
                 self.medals.add(medal[0])
@@ -161,4 +162,4 @@ class GameState:
         with open(CURRENT_SESSION_FILE, 'w') as f:
             json.dump(activity_history, f, indent=2)
 
-        print(f"Play history updated at {CURRENT_SESSION_FILE}")
+        print(f"Play history updated at {CURRENT_SESSION_FILE}", file=log_file, flush=True)

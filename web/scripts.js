@@ -5,6 +5,9 @@ function fetchAndProcessPlayHistory() {
   fetch("activity_history.json")
     .then((response) => response.json())
     .then((data) => {
+      if (data.length == 0) {
+        processedIds = new Set();
+      }
       const recentActivityDiv = document.querySelector(".recent-activity");
       
       // Process entries in reverse order to show newest first

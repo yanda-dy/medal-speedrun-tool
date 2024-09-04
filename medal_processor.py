@@ -1,6 +1,7 @@
 from collections import defaultdict
 from medal import Medal, medals, packs, aeon_maps
 
+log_file = open('output.log', 'a')
 user_stat_medals = set([13, 20, 21, 22, 23, 24, 28, 31, 32, 33, 45, 46, 47, 48, 50, 51, 52, 53, 291, 292, 293])
 pass_fc_medals = set([63, 64, 65, 66, 67, 68, 69, 70, 243, 245, 55, 56, 57, 58, 59, 60, 61, 62, 242, 244, 95, 96, 97, 98, 99, 100, 101, 102, 71, 72, 73, 74, 75, 76, 77, 78, 103, 104, 105, 106, 107, 108, 109, 110, 79, 80, 81, 82, 83, 84, 85, 86, 111, 112, 113, 114, 115, 116, 117, 118, 87, 88, 89, 90, 91, 92, 93, 94])
 single_check_medals = set([1, 3, 4, 5, 6, 17, 38, 39, 40, 41, 44, 54, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 168, 170, 171, 172, 173, 174, 175, 176, 177, 178, 192, 193, 194, 195, 196, 197, 199, 200, 201, 202, 204, 216, 217, 218, 219, 220, 221, 222, 223, 225, 273, 276, 277, 278, 279, 280, 281, 285, 286, 287, 298, 299, 301, 305, 318, 319, 321, 322, 324, 327, 328, 333])
@@ -146,7 +147,6 @@ def award_skill_medal(medal_id, score):
         return False
 
 def award_basic_medal(medal_id, score):
-    score["acc"] /= 100
     drain_time = round((score["drainingtime"] - score["breakingtime"]) / 1000)
     perfect = (score["currentMaxCombo"] == score["maxCombo"])
     if score["gameMode"] == "mania":
@@ -496,8 +496,6 @@ def award_basic_medal(medal_id, score):
         return False
 
 def award_complex_medal(medal_id, play_history, user_stats):
-    for i in range(len(play_history)):
-        play_history[i]["acc"] /= 100
     play_history.reverse()
     recent_play = play_history[0]
     def drain_time(score):
@@ -516,10 +514,9 @@ def award_complex_medal(medal_id, play_history, user_stats):
     elif medal_id == 16:
         if rank_map[recent_play["grade"]] not in ["A", "S", "SH", "X", "XH"]:
             return False
-        if award_medal:
-            for play in play_history:
-                award_medal = (play["pass"]) and (play["mapid"] == recent_play["mapid"]) and (rank_map[play["grade"]] == "D") and (play["score"] > 100_000) and (recent_play["elapsed_time"] - play["elapsed_time"] <= 86400)
-                if award_medal: return True
+        for play in play_history:
+            award_medal = (play["pass"]) and (play["mapid"] == recent_play["mapid"]) and (rank_map[play["grade"]] == "D") and (play["score"] > 100_000) and (recent_play["elapsed_time"] - play["elapsed_time"] <= 86400)
+            if award_medal: return True
         return False
     # Obsessed
     elif medal_id == 43:
@@ -622,7 +619,7 @@ def award_complex_medal(medal_id, play_history, user_stats):
         return True
     # Iron Will
     elif medal_id == 307:
-        award_medal = award_pack_medal(307, play_history, challenge=True)
+        return award_pack_medal(307, play_history, challenge=True)
     # Resurgence
     elif medal_id == 317:
         if len(play_history) < 2:
@@ -703,7 +700,7 @@ def award_medals(play_history: list, session_statistics: dict, awarded_medals: s
     for medal_id in medal_ids:
         medal = medals[medal_id]
         # Check if medal has already been awarded
-        if medal in awarded_medals: continue
+        if medal_id in awarded_medals: continue
         # Medal must be in the correct gamemode
         if medal.restriction != recent_play["gameMode"] and medal.restriction != "NULL": continue
         if medal.grouping in ["Skill & Dedication", "Hush-Hush (Expert)", "Beatmap Challenge Packs"]:
@@ -716,17 +713,17 @@ def award_medals(play_history: list, session_statistics: dict, awarded_medals: s
         award_medal = False
         if medal.grouping in ["Beatmap Packs", "Beatmap Challenge Packs", "Beatmap Spotlights"]:
             challenge_pack = (medal.grouping == "Beatmap Challenge Packs")
-            award_medal = award_pack_medal(medal.id, play_history, challenge_pack)
+            award_medal = award_pack_medal(medal_id, play_history, challenge_pack)
         elif medal_id in user_stat_medals:
-            award_medal = award_stat_medal(medal, session_statistics)
+            award_medal = award_stat_medal(medal_id, session_statistics)
         elif medal_id in pass_fc_medals:
-            award_medal = award_skill_medal(medal, recent_play)
+            award_medal = award_skill_medal(medal_id, recent_play)
         elif medal_id in single_check_medals:
-            award_medal = award_basic_medal(medal, recent_play)
+            award_medal = award_basic_medal(medal_id, recent_play)
         elif medal_id in multi_check_medals:
-            award_medal = award_complex_medal(medal, play_history, session_statistics)
+            award_medal = award_complex_medal(medal_id, play_history, session_statistics)
         else:
-            print(f"Medal with ID {medal_id} not found")
+            print(f"Medal with ID {medal_id} not found", file=log_file, flush=True)
 
         if award_medal:
             to_award.append((medal_id, medal.name, medal.description))
