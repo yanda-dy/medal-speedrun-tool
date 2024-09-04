@@ -6,6 +6,12 @@
 - StreamCompanion (Download from [GitHub](https://github.com/Piotrekol/StreamCompanion))
 - Python 3.8+ (Download from [python.org](https://www.python.org/downloads/))
 
+### Quickstart
+
+1. Download osu! and StreamCompanion as above
+2. Download `MedalSpeedrunTool.zip` from the [releases tab](https://github.com/yanda-dy/medal-speedrun-tool/releases/tag/v1.0.0-beta)
+3. Unzip and run `MedalSpeedrunTool.exe`
+
 ### Installation
 
 1. Clone the repository:
