@@ -1,6 +1,6 @@
 # Medal Speedrun Tracker
 
-### Quickstart
+### Quickstart (Windows Only)
 
 1. Download osu! and StreamCompanion as below (you don't need Python for this method)
 2. Download `MedalSpeedrunTool.zip` from the [releases tab](https://github.com/yanda-dy/medal-speedrun-tool/releases/tag/v1.0.0-beta)

@@ -12,7 +12,9 @@ rank_map = { 0: "XH", 1: "SH", 2: "X", 3: "S", 4: "A", 5: "B", 6: "C", 7: "D", 9
 def award_pack_medal(medal_id, play_history, challenge: bool):
     scoreset = set()
     for play in play_history:
-        # Exclude difficulty reduction mod for Challenge Packs
+        # Exclude other modes and difficulty reduction mods for Challenge Packs
+        if challenge and play["gameMode"] != "osu":
+            continue
         if play["pass"] and (not challenge or play["modsEnum"] & 4355 != 0):
             scoreset.add(play["mapsetid"])
     pack_options = packs[medal_id]
